@@ -70,6 +70,7 @@ public class ComServe implements WSClientTCPRecv, Constants {
         //发送到通服
         client.SendTopicData(topic, packageBytes, null);
     }
+    1111
 */
 
     // 初始化客户端
