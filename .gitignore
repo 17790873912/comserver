@@ -1,0 +1,14 @@
+*/.settings
+/target/
+*.prefs
+.factorypath
+.springBeans
+.classpath
+.project
+/.metadata/
+.idea/
+*.iml
+target/
+rebel.xml
+.DS_Store
+*/.DS_Store
