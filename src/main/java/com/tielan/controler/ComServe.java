@@ -11,12 +11,16 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.Date;
 
 /**
  * 通信服务
  */
 @Slf4j
 @Component
+
 public class ComServe implements WSClientTCPRecv, Constants {
     @Value("${communication.server.ip}")
     private String comServeIp;
@@ -25,7 +29,7 @@ public class ComServe implements WSClientTCPRecv, Constants {
     private int comServePort;
 
     // 客户端名称(自定义 同一IP下不能重复)
-    private static String clientName = "aaa_cli";
+    private static String clientName = "zhang_cli";
 
 
     // 客户端对象
@@ -35,48 +39,57 @@ public class ComServe implements WSClientTCPRecv, Constants {
     // 订阅主题回调处理方法
     @Override
     public void OnClientRevTCP(String topic, byte[] bytes) {
+
+
         System.out.println(topic);
         // 包头
         ByteBuf buf = Unpooled.wrappedBuffer(bytes);
         //PACKAGE_HEADER_LENGTH
-/*        byte[] headerBytes = new byte[PACKAGE_HEADER_LENGTH];
+        byte[] headerBytes = new byte[22];
         buf.readBytes(headerBytes);
         PackageHeader header = PackageHeader.decode(headerBytes);
-        int bodyLen = header.getBodyLen();
+        int bodyLen = bytes.length-23;
         byte[] bodyBytes = new byte[bodyLen];
-        buf.readBytes(bodyBytes);*/
-
+        buf.readBytes(bodyBytes);
         if (topic.equals("T3007")) {
+            System.out.println(header.ASD());
+            System.out.println(header.ASD1());
+            System.out.println(header.ASD2());
+            System.out.println(header.ASD3());
+            System.out.println(header.ASD4());
+            System.out.println(header.ASD5());
+    }
 
-        }
-
-        if (topic.equals("T2015")) {
+        if (topic.equals("T2015"))
+        {
 
         }
 
     }
 
-/*
     //发送
     public void sendMsg(String topic, int funcCode, byte[] bodyBytes) {
-        //构造包头
-        int bodyLength = bodyBytes.length;
-        PackageHeader header = new PackageHeader((short) funcCode, bodyLength);
+        try {
+            //构造包头
+            int bodyLength = bodyBytes.length;
+            PackageHeader header = new PackageHeader((short) funcCode, bodyLength);
+            ByteBuf buf = Unpooled.buffer(22 + bodyLength + 1);
 
-        //组包
-        ByteBuf buf = Unpooled.buffer(18 + bodyLength + 1);
-        byte[] packageBytes = buf.writeBytes(header.encode()).writeBytes(bodyBytes).array();
+            byte[] packageBytes =buf.writeBytes(header.encode()).writeBytes(bodyBytes).array();
 
-        //发送到通服
-        client.SendTopicData(topic, packageBytes, null);
+            /*发送到通服*/
+            client.SendTopicData(topic,packageBytes, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-*/
 
     // 初始化客户端
     @PostConstruct
     public void init() {
         // 1.初始化客户端并与通服建立连接
         System.out.println("*********初始化通服客户端**********");
+
         boolean res = client.InitClient(clientName);
         client.SetRecv(this);
 
@@ -117,7 +130,11 @@ public class ComServe implements WSClientTCPRecv, Constants {
         if (!res) {
             System.out.println("订阅主题列表失败!");
         }
+        sendMsg("T3007",2001,"1234".getBytes());
+
     }
+
+
 
     @PreDestroy
     public void disconnect() {
