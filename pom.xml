@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.tielan</groupId>
-    <artifactId>test</artifactId>
+    <artifactId>comserver</artifactId>
     <version>1.0-SNAPSHOT</version>
 
 <dependencies>

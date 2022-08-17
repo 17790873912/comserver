@@ -11,9 +11,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.Date;
 
 /**
  * 通信服务
@@ -29,11 +26,11 @@ public class ComServe implements WSClientTCPRecv, Constants {
     private int comServePort;
 
     // 客户端名称(自定义 同一IP下不能重复)
-    private static String clientName = "zhang_cli";
+    private static final String clientName = "zhang_cli";
 
 
     // 客户端对象
-    public static WSClientTCP client = new WSClientTCP();
+    private static WSClientTCP client = new WSClientTCP();
 
 
     // 订阅主题回调处理方法
@@ -48,37 +45,38 @@ public class ComServe implements WSClientTCPRecv, Constants {
         byte[] headerBytes = new byte[22];
         buf.readBytes(headerBytes);
         PackageHeader header = PackageHeader.decode(headerBytes);
-        int bodyLen = bytes.length-23;
+
+        int bodyLen = bytes.length - 23;
         byte[] bodyBytes = new byte[bodyLen];
         buf.readBytes(bodyBytes);
         if (topic.equals("T3007")) {
+            assert header != null;
             System.out.println(header.ASD());
             System.out.println(header.ASD1());
             System.out.println(header.ASD2());
             System.out.println(header.ASD3());
             System.out.println(header.ASD4());
             System.out.println(header.ASD5());
-    }
+        }
 
-        if (topic.equals("T2015"))
-        {
+        if (topic.equals("T2015")) {
 
         }
 
     }
 
     //发送
-    public void sendMsg(String topic, int funcCode, byte[] bodyBytes) {
+    private void sendMsg(String topic, int funcCode, byte[] bodyBytes) {
         try {
             //构造包头
             int bodyLength = bodyBytes.length;
             PackageHeader header = new PackageHeader((short) funcCode, bodyLength);
             ByteBuf buf = Unpooled.buffer(22 + bodyLength + 1);
 
-            byte[] packageBytes =buf.writeBytes(header.encode()).writeBytes(bodyBytes).array();
+            byte[] packageBytes = buf.writeBytes(header.encode()).writeBytes(bodyBytes).array();
 
             /*发送到通服*/
-            client.SendTopicData(topic,packageBytes, null);
+            client.SendTopicData(topic, packageBytes, null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -130,10 +128,9 @@ public class ComServe implements WSClientTCPRecv, Constants {
         if (!res) {
             System.out.println("订阅主题列表失败!");
         }
-        sendMsg("T3007",2001,"1234".getBytes());
+        sendMsg("T3007", 2001, "1234".getBytes());
 
     }
-
 
 
     @PreDestroy
